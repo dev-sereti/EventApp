@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:423186704276:android:632a1ce12ab2d71ec29181",
+        "mobilesdk_app_id": "1:423186704276:android:c2771dfebb3b62a0c29181",
         "android_client_info": {
-          "package_name": "com.tukutaneevent"
+          "package_name": "com.tukutaneeventapp"
         }
       },
       "oauth_client": [],
