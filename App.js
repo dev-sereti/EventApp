@@ -4,14 +4,9 @@ import {createStackNavigator} from '@react-navigation/stack';
 import EventListScreen from './src/screens/EventListScreen';
 import EventDetailScreen from './src/screens/EventDetailScreen';
 
-export type RootStackParamList = {
-  EventList: undefined;
-  EventDetail: {event: any}; // You can create a proper Event interface
-};
+const Stack = createStackNavigator();
 
-const Stack = createStackNavigator<RootStackParamList>();
-
-const App: React.FC = () => {
+const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName="EventList">
