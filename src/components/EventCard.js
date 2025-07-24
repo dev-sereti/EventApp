@@ -7,7 +7,7 @@ import {
   StyleSheet,
   Alert,
 } from 'react-native';
-import {AddCalendarEvent} from 'react-native-add-calendar-event';
+import * as AddCalendarEvent from 'react-native-add-calendar-event'; // <-- Correct import
 
 const EventCard = ({event, onPress, onRSVP}) => {
   const handleSaveToCalendar = () => {
@@ -19,21 +19,30 @@ const EventCard = ({event, onPress, onRSVP}) => {
       notes: event.description,
     };
 
+    // Optional: Defensive check
+    if (typeof AddCalendarEvent.presentEventCreatingDialog !== 'function') {
+      Alert.alert(
+        'Error',
+        'Calendar module is not available. Please rebuild the app and try again.'
+      );
+      return;
+    }
+
     AddCalendarEvent.presentEventCreatingDialog(eventConfig)
       .then(eventInfo => {
-        if (eventInfo.action === 'SAVED') {
+        if (eventInfo && eventInfo.action === 'SAVED') {
           Alert.alert('Success', 'Event saved to calendar!');
         }
       })
       .catch(error => {
         console.warn('Error saving to calendar:', error);
+        Alert.alert('Error', 'Could not save event to calendar.');
       });
   };
 
   return (
     <TouchableOpacity style={styles.card} onPress={onPress}>
       <Image source={{uri: event.imageUrl}} style={styles.image} />
-      
       <View style={styles.content}>
         <View style={styles.header}>
           <Text style={styles.title}>{event.name}</Text>
@@ -41,18 +50,15 @@ const EventCard = ({event, onPress, onRSVP}) => {
             <Text style={styles.categoryText}>{event.category}</Text>
           </View>
         </View>
-        
         <Text style={styles.date}>{event.date}</Text>
         <Text style={styles.location}>{event.location}</Text>
         <Text style={styles.description} numberOfLines={2}>
           {event.description}
         </Text>
-        
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.rsvpButton} onPress={onRSVP}>
             <Text style={styles.rsvpButtonText}>RSVP</Text>
           </TouchableOpacity>
-          
           <TouchableOpacity
             style={styles.calendarButton}
             onPress={handleSaveToCalendar}>
