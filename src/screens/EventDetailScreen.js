@@ -8,7 +8,7 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
-import {AddCalendarEvent} from 'react-native-add-calendar-event';
+import * as AddCalendarEvent from 'react-native-add-calendar-event'; // Correct import
 
 const EventDetailScreen = ({route}) => {
   const {event} = route.params;
@@ -18,29 +18,48 @@ const EventDetailScreen = ({route}) => {
   };
 
   const handleSaveToCalendar = () => {
+    // Ensure date strings are in the correct ISO format with milliseconds
+    const getISODate = (dateString) => {
+      if (!dateString) return undefined;
+      try {
+        return new Date(dateString).toISOString();
+      } catch {
+        return undefined;
+      }
+    };
+
     const eventConfig = {
       title: event.name,
-      startDate: event.date,
-      endDate: event.endDate || event.date,
+      startDate: getISODate(event.date),
+      endDate: getISODate(event.endDate) || getISODate(event.date),
       location: event.location,
       notes: event.description,
     };
 
+    // Defensive check for the module
+    if (typeof AddCalendarEvent.presentEventCreatingDialog !== 'function') {
+      Alert.alert(
+        'Error',
+        'Calendar module is not available. Please rebuild the app and try again.'
+      );
+      return;
+    }
+
     AddCalendarEvent.presentEventCreatingDialog(eventConfig)
       .then(eventInfo => {
-        if (eventInfo.action === 'SAVED') {
+        if (eventInfo && eventInfo.action === 'SAVED') {
           Alert.alert('Success', 'Event saved to calendar!');
         }
       })
       .catch(error => {
         console.warn('Error saving to calendar:', error);
+        Alert.alert('Error', 'Could not save event to calendar.');
       });
   };
 
   return (
     <ScrollView style={styles.container}>
       <Image source={{uri: event.imageUrl}} style={styles.image} />
-      
       <View style={styles.content}>
         <View style={styles.header}>
           <Text style={styles.title}>{event.name}</Text>
@@ -48,18 +67,14 @@ const EventDetailScreen = ({route}) => {
             <Text style={styles.categoryText}>{event.category}</Text>
           </View>
         </View>
-        
         <Text style={styles.date}>{event.date}</Text>
         <Text style={styles.location}>{event.location}</Text>
-        
         <Text style={styles.sectionTitle}>About This Event</Text>
         <Text style={styles.description}>{event.description}</Text>
-        
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.rsvpButton} onPress={handleRSVP}>
             <Text style={styles.rsvpButtonText}>RSVP Now</Text>
           </TouchableOpacity>
-          
           <TouchableOpacity
             style={styles.calendarButton}
             onPress={handleSaveToCalendar}>
